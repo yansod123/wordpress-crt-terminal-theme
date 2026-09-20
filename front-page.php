@@ -1,4 +1,137 @@
-<?php get_header();
-$categories=get_categories(array('hide_empty'=>true));
-$posts=new WP_Query(array('post_type'=>'post','posts_per_page'=>20,'post_status'=>'publish'));
-?><main id="main" class="canvas"><section class="vault" id="projects"><label class="search-shell" id="search-shell"><span class="search-prompt">grep -i</span><i class="fake-cursor" aria-hidden="true"></i><input id="journal-search" type="search" placeholder="" autocomplete="off"><kbd class="key-hint">⌘K</kbd></label><div class="filterbar"><button class="filter active" data-filter="all"><?php esc_html_e('All','crt-terminal'); ?></button><?php foreach($categories as $c):?><button class="filter" data-filter="<?php echo esc_attr($c->slug); ?>"><?php echo esc_html($c->name); ?></button><?php endforeach;?></div><div class="posts"><?php if($posts->have_posts()):$i=1;while($posts->have_posts()):$posts->the_post();$cat=get_the_category();$slug=$cat?sanitize_html_class($cat[0]->slug):'uncategorized';$name=$cat?$cat[0]->name:esc_html__('Uncategorized','crt-terminal');$search_text=wp_strip_all_tags(get_the_title().' '.$name.' '.get_the_excerpt());?><a class="post-row" data-category="<?php echo esc_attr($slug); ?>" data-search="<?php echo esc_attr($search_text); ?>" href="<?php the_permalink(); ?>"><span class="code">LOG-<?php echo str_pad($i,3,'0',STR_PAD_LEFT); ?></span><span class="pill <?php echo $i===1?'active-pill':''; ?>"><?php echo $i===1?esc_html__('LATEST','crt-terminal'):esc_html(strtoupper($name)); ?></span><span class="post-title"><?php the_title(); ?></span><span class="meta"><?php echo esc_html($name); ?></span><time class="date"><?php echo esc_html(get_the_date('Y.m.d')); ?></time><i class="arrow">→</i></a><?php $i++;endwhile;wp_reset_postdata();else:?><div class="empty">◉ ◉ ◉ <?php esc_html_e('No entries yet. Go to Admin → Posts → Add New to publish; it will appear here automatically.','crt-terminal'); ?></div><?php endif;?></div><div class="no-results" id="no-results"><?php esc_html_e('0 results / no matching entries found','crt-terminal'); ?></div></section><section class="activity" id="archive"><div class="titlebar"><h2><?php esc_html_e('Workspace Activity','crt-terminal'); ?></h2><p><?php esc_html_e('LOG / CATEGORIES / RECENT UPDATES','crt-terminal'); ?></p></div><div class="activity-grid"><article class="panel"><div class="panel-head"><h2><?php esc_html_e('Recent posts','crt-terminal'); ?></h2></div><div class="log"><?php $recent=get_posts(array('numberposts'=>3,'post_status'=>'publish'));if($recent):foreach($recent as $post):setup_postdata($post);?><div><time><?php echo esc_html(get_the_date('Y.m.d')); ?></time><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></div><?php endforeach;wp_reset_postdata();else:?><div><time>READY</time><span>—</span></div><?php endif;?></div></article><article class="panel"><div class="panel-head"><h2><?php esc_html_e('Categories','crt-terminal'); ?></h2></div><div class="chips"><?php if($categories):foreach($categories as $c):?><a class="chip" href="<?php echo esc_url(get_category_link($c->term_id)); ?>"><?php echo esc_html($c->name); ?> · <?php echo esc_html($c->count); ?></a><?php endforeach;else:?><span class="chip"><?php esc_html_e('Create categories in Posts','crt-terminal'); ?></span><?php endif;?></div></article></div></section></main><?php get_footer(); ?>
+<?php
+if (!defined('ABSPATH')) {
+	exit;
+}
+get_header();
+
+$posts = new WP_Query(array(
+	'post_type'           => 'post',
+	'posts_per_page'      => 12,
+	'ignore_sticky_posts' => true,
+));
+?>
+
+<section class="vault">
+	<div class="titlebar">
+		<h2><?php bloginfo('name'); ?></h2>
+		<p><?php bloginfo('description'); ?></p>
+	</div>
+
+	<div class="search-shell" id="search-shell">
+		<span class="search-prompt">search ></span>
+		<input id="journal-search" type="search" placeholder="<?php esc_attr_e('Search posts, categories, excerpts...', 'crt-terminal'); ?>">
+		<span class="fake-cursor" aria-hidden="true"></span>
+		<span class="key-hint">⌘K</span>
+	</div>
+
+	<div class="filterbar" aria-label="<?php esc_attr_e('Filters', 'crt-terminal'); ?>">
+		<button class="filter active" type="button" data-filter="all"><?php esc_html_e('All', 'crt-terminal'); ?></button>
+		<?php
+		$filters = get_categories(array('hide_empty' => true, 'number' => 8));
+		foreach ($filters as $filter) :
+		?>
+			<button class="filter" type="button" data-filter="<?php echo esc_attr($filter->slug); ?>">
+				<?php echo esc_html($filter->name); ?>
+			</button>
+		<?php endforeach; ?>
+	</div>
+
+	<div class="posts" id="projects">
+		<?php if ($posts->have_posts()) : ?>
+			<?php $i = 1; ?>
+			<?php while ($posts->have_posts()) : $posts->the_post(); ?>
+				<?php
+				$cat         = get_the_category();
+				$slug        = $cat ? sanitize_html_class($cat[0]->slug) : 'uncategorized';
+				$name        = $cat ? $cat[0]->name : esc_html__('Uncategorized', 'crt-terminal');
+				$search_text = wp_strip_all_tags(get_the_title() . ' ' . $name . ' ' . get_the_excerpt());
+				?>
+				<a
+					class="post-row"
+					href="<?php the_permalink(); ?>"
+					data-category="<?php echo esc_attr($slug); ?>"
+					data-search="<?php echo esc_attr($search_text); ?>"
+				>
+					<span class="code"><?php echo esc_html(sprintf('LOG-%03d', $i)); ?></span>
+					<span class="pill active-pill"><?php echo esc_html($name); ?></span>
+					<span class="post-title"><?php the_title(); ?></span>
+					<span class="meta"><?php echo esc_html(get_the_author()); ?></span>
+					<time class="date" datetime="<?php echo esc_attr(get_the_date('c')); ?>">
+						<?php echo esc_html(get_the_date('Y.m.d')); ?>
+					</time>
+					<span class="arrow" aria-hidden="true">→</span>
+				</a>
+				<?php $i++; ?>
+			<?php endwhile; ?>
+			<?php wp_reset_postdata(); ?>
+		<?php else : ?>
+			<div class="empty"><?php esc_html_e('No posts found.', 'crt-terminal'); ?></div>
+		<?php endif; ?>
+
+		<div class="no-results" id="no-results"><?php esc_html_e('No matching results.', 'crt-terminal'); ?></div>
+	</div>
+</section>
+
+<section class="activity">
+	<div class="titlebar">
+		<h2><?php esc_html_e('Activity', 'crt-terminal'); ?></h2>
+		<p><?php esc_html_e('RECENT LOGS / SYSTEM STATE / ACTIVE TAGS', 'crt-terminal'); ?></p>
+	</div>
+
+	<div class="activity-grid">
+		<div class="panel">
+			<div class="panel-head">
+				<h2><?php esc_html_e('Recent entries', 'crt-terminal'); ?></h2>
+			</div>
+			<div class="log">
+				<?php
+				$recent = get_posts(array(
+					'numberposts' => 4,
+					'post_type'   => 'post',
+				));
+				if ($recent) :
+					foreach ($recent as $post) :
+						setup_postdata($post);
+						?>
+						<div>
+							<time datetime="<?php echo esc_attr(get_the_date('c')); ?>"><?php echo esc_html(get_the_date('Y.m.d')); ?></time>
+							<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+						</div>
+						<?php
+					endforeach;
+					wp_reset_postdata();
+				else :
+					?>
+					<div>
+						<time>--</time>
+						<span><?php esc_html_e('No activity yet.', 'crt-terminal'); ?></span>
+					</div>
+				<?php endif; ?>
+			</div>
+		</div>
+
+		<div class="panel">
+			<div class="panel-head">
+				<h2><?php esc_html_e('Tags', 'crt-terminal'); ?></h2>
+			</div>
+			<div class="chips">
+				<?php
+				$tags = get_tags(array('number' => 10));
+				if ($tags) :
+					foreach ($tags as $tag) :
+						?>
+						<a class="chip" href="<?php echo esc_url(get_tag_link($tag)); ?>">
+							#<?php echo esc_html($tag->name); ?>
+						</a>
+						<?php
+					endforeach;
+				else :
+					?>
+					<span class="chip"><?php esc_html_e('No tags', 'crt-terminal'); ?></span>
+				<?php endif; ?>
+			</div>
+		</div>
+	</div>
+</section>
+
+<?php get_footer(); ?>
