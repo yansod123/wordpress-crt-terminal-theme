@@ -1,1 +1,109 @@
-<!doctype html><html <?php language_attributes(); ?>><head><meta charset="<?php bloginfo('charset'); ?>"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><?php wp_head(); ?></head><body <?php body_class(); ?>><a class="skip" href="#main"><?php esc_html_e('Skip to content','crt-terminal'); ?></a><div class="app"><aside class="sidebar"><div class="crt-brand" role="button" tabindex="0" aria-label="<?php esc_attr_e('Terminal companion, click to interact','crt-terminal'); ?>" data-crt-brand><div class="crt-case"><span class="crt-notch" aria-hidden="true"></span><div class="crt-topbar"><span class="crt-rec"><i class="crt-rec-dot" aria-hidden="true"></i>REC</span><span class="crt-model">TERMINAL-01</span><span class="crt-on"><i class="crt-on-dot" data-crt-led aria-hidden="true"></i>ON</span></div><div class="crt-screen" data-crt-screen><span class="crt-static" data-crt-static aria-hidden="true"></span><span class="crt-glitch" data-crt-glitch aria-hidden="true"></span><span class="crt-face" data-crt-face aria-hidden="true"><span class="crt-eye" data-crt-eye></span><span class="crt-eye" data-crt-eye></span></span><span class="crt-zzz" data-crt-zzz aria-hidden="true">zZz</span><span class="crt-corner crt-corner-tl" data-crt-status>STATUS: BOOT</span><span class="crt-corner crt-corner-tr" data-crt-term>TERM: vt100</span><span class="crt-corner crt-corner-bl" data-crt-uptime>UP: 00:00:00</span><span class="crt-corner crt-corner-br" data-crt-sig>SIG: -42dBm</span><span class="crt-scanlines" aria-hidden="true"></span><span class="crt-vignette" aria-hidden="true"></span></div><div class="crt-plate">CRT DISPLAY · P31 PHOSPHOR · 15.7 kHz</div></div></div><p class="label"><?php esc_html_e('Workspace','crt-terminal'); ?></p><nav class="nav"><a class="active" href="<?php echo esc_url(home_url('/')); ?>#projects"><i class="dot"></i><?php esc_html_e('Articles','crt-terminal'); ?></a><a href="<?php echo esc_url(home_url('/')); ?>#archive"><?php esc_html_e('Archive','crt-terminal'); ?></a></nav><div><p class="label label-categories"><?php esc_html_e('Categories','crt-terminal'); ?></p><div class="collection"><?php $cats=get_categories(array('hide_empty'=>false));$current=is_category()?get_queried_object_id():0;if($cats):foreach($cats as $cat):?><a data-category-link="<?php echo esc_attr($cat->slug); ?>" class="<?php echo $current===$cat->term_id?'active':''; ?>" href="<?php echo esc_url(get_category_link($cat->term_id)); ?>"><i></i><?php echo esc_html($cat->name); ?></a><?php endforeach;else:?><a href="#projects"><i></i><?php esc_html_e('Uncategorized','crt-terminal'); ?></a><?php endif;?></div></div><div class="bottom"><p class="label"><?php esc_html_e('Links','crt-terminal'); ?></p><?php if(is_user_logged_in()):if(current_user_can('edit_posts')):?><a class="side-link" href="<?php echo esc_url(admin_url('post-new.php')); ?>"><?php esc_html_e('Write post','crt-terminal'); ?> <b>↗</b></a><?php endif;?><a class="side-link" href="<?php echo esc_url(admin_url()); ?>"><?php esc_html_e('Dashboard','crt-terminal'); ?> <b>↗</b></a><a class="side-link" href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>"><?php esc_html_e('Sign out','crt-terminal'); ?> <b>↗</b></a><?php else:?><a class="side-link" href="<?php echo esc_url(wp_login_url(home_url('/'))); ?>"><?php esc_html_e('Sign in','crt-terminal'); ?> <b>↗</b></a><?php endif;?><a class="side-link" href="#top"><?php esc_html_e('Back to top','crt-terminal'); ?> <b>↑</b></a><a class="side-link" href="<?php echo esc_url(home_url('/')); ?>"><?php esc_html_e('Home','crt-terminal'); ?> <b>↗</b></a></div></aside><div class="main"><header class="topbar" id="top"><button class="menu">☰</button><span class="crumb"><b><?php esc_html_e('Workspace','crt-terminal'); ?></b> / <?php esc_html_e('Articles','crt-terminal'); ?></span><span class="led-status"><i class="led"></i><span class="state-loading"><?php esc_html_e('Initializing','crt-terminal'); ?></span><span class="state-ready"><?php esc_html_e('Available','crt-terminal'); ?></span></span></header>
+<?php if (!defined('ABSPATH')) exit; ?>
+<!doctype html>
+<html <?php language_attributes(); ?>>
+<head>
+<meta charset="<?php bloginfo('charset'); ?>">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<?php wp_head(); ?>
+</head>
+<body <?php body_class(); ?>>
+<?php wp_body_open(); ?>
+
+<a class="skip screen-reader-text" href="#content"><?php esc_html_e('Skip to content', 'crt-terminal'); ?></a>
+
+<div class="app">
+	<aside class="sidebar">
+		<?php if (has_custom_logo()) : ?>
+			<div class="brand"><?php the_custom_logo(); ?></div>
+		<?php else : ?>
+			<a class="crt-brand" href="<?php echo esc_url(home_url('/')); ?>" aria-label="<?php echo esc_attr(get_bloginfo('name')); ?>">
+				<div class="crt-case">
+					<div class="crt-notch"></div>
+					<div class="crt-topbar">
+						<span class="crt-rec"><span class="crt-rec-dot"></span> REC</span>
+						<span class="crt-model">CRT TERMINAL</span>
+						<span class="crt-on"><span class="crt-on-dot"></span> ON</span>
+					</div>
+					<div class="crt-screen">
+						<div class="crt-corner crt-corner-tl">SYS</div>
+						<div class="crt-corner crt-corner-tr">OK</div>
+						<div class="crt-corner crt-corner-bl">L:01</div>
+						<div class="crt-corner crt-corner-br">V1.22</div>
+						<div class="crt-face">
+							<div class="crt-eye"></div>
+							<div class="crt-eye"></div>
+						</div>
+						<div class="crt-zzz">zzz</div>
+						<div class="crt-vignette"></div>
+						<div class="crt-scanlines"></div>
+						<div class="crt-static"></div>
+						<div class="crt-glitch"></div>
+					</div>
+					<div class="crt-plate"><?php bloginfo('name'); ?></div>
+				</div>
+			</a>
+		<?php endif; ?>
+
+		<div class="label"><?php esc_html_e('Navigation', 'crt-terminal'); ?></div>
+		<nav class="nav" aria-label="<?php esc_attr_e('Sidebar navigation', 'crt-terminal'); ?>">
+			<a href="<?php echo esc_url(home_url('/')); ?>" class="<?php echo is_front_page() ? 'active' : ''; ?>">
+				<span class="dot"></span><?php esc_html_e('Home', 'crt-terminal'); ?>
+			</a>
+			<a href="<?php echo esc_url(home_url('/#projects')); ?>">
+				<span class="dot"></span><?php esc_html_e('Projects', 'crt-terminal'); ?>
+			</a>
+			<a href="<?php echo esc_url(get_permalink(get_option('page_for_posts')) ?: home_url('/')); ?>">
+				<span class="dot"></span><?php esc_html_e('Journal', 'crt-terminal'); ?>
+			</a>
+		</nav>
+
+		<?php
+		$cats = get_categories(array(
+			'hide_empty' => true,
+			'number'     => 8,
+		));
+		if (!empty($cats)) :
+		?>
+			<div class="label label-categories"><?php esc_html_e('Categories', 'crt-terminal'); ?></div>
+			<div class="collection">
+				<?php foreach ($cats as $cat) : ?>
+					<a href="<?php echo esc_url(home_url('/#projects')); ?>" data-category-link="<?php echo esc_attr($cat->slug); ?>">
+						<i></i><?php echo esc_html($cat->name); ?>
+					</a>
+				<?php endforeach; ?>
+			</div>
+		<?php endif; ?>
+
+		<div class="bottom">
+			<a class="side-link" href="<?php echo esc_url(admin_url()); ?>">
+				<?php esc_html_e('Dashboard', 'crt-terminal'); ?>
+				<b>WP</b>
+			</a>
+		</div>
+	</aside>
+
+	<div class="main">
+		<header class="topbar">
+			<button class="menu" type="button" aria-label="<?php esc_attr_e('Toggle menu', 'crt-terminal'); ?>">☰</button>
+
+			<nav class="topbar-nav" aria-label="<?php esc_attr_e('Primary menu', 'crt-terminal'); ?>">
+				<?php
+				wp_nav_menu(array(
+					'theme_location' => 'primary',
+					'container'      => false,
+					'items_wrap'     => '%3$s',
+					'depth'          => 1,
+					'fallback_cb'    => 'nbu_t_menu_fallback',
+					'walker'         => class_exists('NBU_T_Nav_Walker') ? new NBU_T_Nav_Walker() : '',
+				));
+				?>
+			</nav>
+
+			<div class="led-status" aria-live="polite">
+				<span class="led"></span>
+				<span class="state-loading"><?php esc_html_e('Booting...', 'crt-terminal'); ?></span>
+				<span class="state-ready"><?php esc_html_e('Ready', 'crt-terminal'); ?></span>
+			</div>
+		</header>
+
+		<main id="content" class="canvas">
