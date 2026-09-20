@@ -6,6 +6,27 @@ function nbu_t_login_style(){wp_enqueue_style('nbu-terminal-login',get_template_
 function nbu_t_login_brand($url){return home_url('/');}add_filter('login_headerurl','nbu_t_login_brand');
 function nbu_t_login_title($title){return esc_html(get_bloginfo('name')).' — Sign in';}add_filter('login_headertext','nbu_t_login_title');
 
+function nbu_t_menus(){register_nav_menus(array('primary'=>__('主导航','crt-terminal')));}add_action('after_setup_theme','nbu_t_menus');
+
+if(class_exists('Walker_Nav_Menu') && !class_exists('NBU_T_Nav_Walker')){
+class NBU_T_Nav_Walker extends Walker_Nav_Menu {
+    function start_lvl(&$output,$depth=0,$args=null){}
+    function end_lvl(&$output,$depth=0,$args=null){}
+    function start_el(&$output,$item,$depth=0,$args=null,$id=0){
+        $classes=empty($item->classes)?array():(array)$item->classes;
+        $isActive=in_array('current-menu-item',$classes)||in_array('current-menu-parent',$classes);
+        $cls=$isActive?' class="active"':'';
+        $atts='';
+        $atts.=!empty($item->attr_title)?' title="'.esc_attr($item->attr_title).'"':'';
+        $atts.=!empty($item->target)?' target="'.esc_attr($item->target).'"':'';
+        $atts.=!empty($item->xfn)?' rel="'.esc_attr($item->xfn).'"':'';
+        $atts.=!empty($item->url)?' href="'.esc_url($item->url).'"':'';
+        $output.='<a'.$cls.$atts.'>'.esc_html($item->title).'</a>';
+    }
+    function end_el(&$output,$item,$depth=0,$args=null){}
+}
+}
+
 function nbu_t_customizer_admin_css(){
 wp_add_inline_style('customize-controls','.customize-control-nbu_t_range input[type=range]{width:100%}.customize-control-nbu_t_range output{display:block;text-align:right;font-size:11px;color:#777}.nbu-t-font-source{display:flex;gap:14px;margin:6px 0}.nbu-t-font-panel{margin-top:6px}.nbu-t-font-check-result{margin-left:8px;font-size:12px}.nbu-t-font-check-result.ok{color:#2e7d32}.nbu-t-font-check-result.fail{color:#c0392b}.nbu-t-font-filename{font-size:12px;color:#777;margin-left:6px}');
 }
@@ -151,11 +172,28 @@ $c->add_setting('nbu_t_led_brightness',array('default'=>100,'sanitize_callback'=
 
 $c->add_setting('nbu_t_led_speed',array('default'=>26,'sanitize_callback'=>'absint'));$c->add_control(new NBU_T_Range_Control($c,'nbu_t_led_speed',array('section'=>'nbu_t_led','label'=>'闪烁频率','description'=>'微微呼吸效果的周期，数值越小闪烁越快（单位：0.1秒）','input_attrs'=>array('min'=>5,'max'=>60,'step'=>1))));
 
+$c->add_section('nbu_t_footer',array('title'=>'悬浮页脚','priority'=>34,'description'=>'页面底部悬浮工具条'));
+
+$c->add_setting('nbu_t_footer_enable',array('default'=>true,'sanitize_callback'=>'rest_sanitize_boolean'));$c->add_control('nbu_t_footer_enable',array('section'=>'nbu_t_footer','label'=>'启用悬浮页脚','type'=>'checkbox'));
+
+$c->add_setting('nbu_t_footer_text',array('default'=>'← Back to Home','sanitize_callback'=>'sanitize_text_field'));$c->add_control('nbu_t_footer_text',array('section'=>'nbu_t_footer','label'=>'左侧文字','description'=>'留空则不显示该链接文字','type'=>'text'));
+
+$c->add_setting('nbu_t_footer_link',array('default'=>'','sanitize_callback'=>'esc_url_raw'));$c->add_control('nbu_t_footer_link',array('section'=>'nbu_t_footer','label'=>'左侧链接地址','description'=>'留空则默认跳转到网站首页','type'=>'url'));
+
+$c->add_setting('nbu_t_footer_center_text',array('default'=>'','sanitize_callback'=>'sanitize_text_field'));$c->add_control('nbu_t_footer_center_text',array('section'=>'nbu_t_footer','label'=>'中间文字','description'=>'留空则自动显示站点标题','type'=>'text'));
+
+$c->add_setting('nbu_t_footer_clock_enable',array('default'=>true,'sanitize_callback'=>'rest_sanitize_boolean'));$c->add_control('nbu_t_footer_clock_enable',array('section'=>'nbu_t_footer','label'=>'显示右侧时钟','type'=>'checkbox'));
+
+$c->add_setting('nbu_t_footer_clock_label',array('default'=>'CST','sanitize_callback'=>'sanitize_text_field'));$c->add_control('nbu_t_footer_clock_label',array('section'=>'nbu_t_footer','label'=>'时钟前缀标签','description'=>'显示在时间前面的文字，例如 CST、北京时间','type'=>'text'));
+
+$c->add_setting('nbu_t_footer_clock_tz',array('default'=>'Asia/Shanghai','sanitize_callback'=>'sanitize_text_field'));$c->add_control('nbu_t_footer_clock_tz',array('section'=>'nbu_t_footer','label'=>'时钟时区','type'=>'select','choices'=>array('Asia/Shanghai'=>'北京时间 (UTC+8)','Asia/Tokyo'=>'东京时间 (UTC+9)','Asia/Singapore'=>'新加坡时间 (UTC+8)','Europe/London'=>'伦敦时间','America/New_York'=>'纽约时间','America/Los_Angeles'=>'洛杉矶时间','UTC'=>'UTC 协调世界时')));
+
 }add_action('customize_register','nbu_t_customize');
 
 function nbu_t_body_class($classes){
 $mode=get_theme_mod('nbu_t_crt_mode','scanline');
 if($mode==='pixel')$classes[]='crt-mode-pixel';
+if(!get_theme_mod('nbu_t_footer_enable',true))$classes[]='nbu-t-footer-off';
 return $classes;
 }add_filter('body_class','nbu_t_body_class');
 
