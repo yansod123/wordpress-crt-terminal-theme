@@ -1,1 +1,46 @@
-<?php get_header();?><main id="main" class="canvas archive-page"><section class="article-head"><p class="eyebrow">JOURNAL / POSTS</p><h1><?php if(is_category())single_cat_title();else esc_html_e('Article Archive','crt-terminal');?></h1><p class="lead">WordPress posts and notes.</p></section><div class="posts archive-posts"><?php if(have_posts()):$i=1;while(have_posts()):the_post();?><a class="post-row" href="<?php the_permalink();?>"><span class="code">LOG-<?php echo str_pad((string)$i,3,'0',STR_PAD_LEFT);?></span><span class="post-title"><?php the_title();?></span><span class="meta"><?php $c=get_the_category();echo esc_html($c?$c[0]->name:__('Uncategorized','crt-terminal'));?></span><time class="date"><?php echo esc_html(get_the_date('Y.m.d'));?></time><i class="arrow">↗</i></a><?php $i++;endwhile;else:?><div class="empty"><?php esc_html_e('No entries yet.','crt-terminal');?></div><?php endif;?></div></main><?php get_footer();?>
+<?php
+if (!defined('ABSPATH')) {
+	exit;
+}
+get_header();
+?>
+
+<section class="archive-page">
+	<div class="titlebar">
+		<h2><?php wp_title(''); ?></h2>
+		<p><?php esc_html_e('ARCHIVE / INDEX / ENTRIES', 'crt-terminal'); ?></p>
+	</div>
+
+	<div class="posts archive-posts">
+		<?php if (have_posts()) : ?>
+			<?php $i = 1; ?>
+			<?php while (have_posts()) : the_post(); ?>
+				<?php
+				$cat  = get_the_category();
+				$name = $cat ? $cat[0]->name : esc_html__('Uncategorized', 'crt-terminal');
+				?>
+				<a class="post-row" href="<?php the_permalink(); ?>">
+					<span class="code"><?php echo esc_html(sprintf('ARC-%03d', $i)); ?></span>
+					<span class="pill"><?php echo esc_html($name); ?></span>
+					<span class="post-title"><?php the_title(); ?></span>
+					<span class="meta"><?php echo esc_html(get_the_author()); ?></span>
+					<time class="date" datetime="<?php echo esc_attr(get_the_date('c')); ?>">
+						<?php echo esc_html(get_the_date('Y.m.d')); ?>
+					</time>
+					<span class="arrow" aria-hidden="true">→</span>
+				</a>
+				<?php $i++; ?>
+			<?php endwhile; ?>
+
+			<div class="footer">
+				<span><?php previous_posts_link(esc_html__('← Newer', 'crt-terminal')); ?></span>
+				<span><?php esc_html_e('Archive navigation', 'crt-terminal'); ?></span>
+				<span><?php next_posts_link(esc_html__('Older →', 'crt-terminal')); ?></span>
+			</div>
+		<?php else : ?>
+			<div class="empty"><?php esc_html_e('No posts found.', 'crt-terminal'); ?></div>
+		<?php endif; ?>
+	</div>
+</section>
+
+<?php get_footer(); ?>
